@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ADRENALINE V1</title>
+<style>
+  @font-face {
+    font-family: 'SiteFont';
+    src: url('font.ttf') format('truetype');
+  }
+
+  :root {
+    --bg:       #000000;
+    --bg2:      #0c0c0c;
+    --bg3:      #131313;
+    --border:   #1c1c1c;
+    --border2:  #2a2a2a;
+    --text:     #dedede;
+    --text2:    #6e6e6e;
+    --text3:    #333333;
+    --accent:   #ffffff;
+    --glow:     rgba(255,255,255,0.07);
+    --glow-md:  rgba(255,255,255,0.13);
+    --glow-hi:  rgba(255,255,255,0.22);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'SiteFont', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ══ NAV ══════════════════════════════════════════════ */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 200;
+    height: 50px;
+    background: rgba(0,0,0,0.96);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .nav-links { display:flex; gap:1px; align-items:center; }
+
+  .nav-btn {
+    background: none;
+    border: none;
+    color: var(--text2);
+    font-family: 'SiteFont', monospace;
+    font-size: 11px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    padding: 7px 20px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: color .15s, background .15s, box-shadow .15s;
+  }
+  .nav-btn:hover {
+    color: var(--accent);
+    background: var(--bg3);
+    box-shadow: 0 0 14px var(--glow-md), inset 0 0 10px var(--glow);
+  }
+  .nav-btn.active {
+    color: var(--accent);
+    background: var(--bg2);
+    box-shadow: 0 0 10px var(--glow);
+  }
+
+  /* ══ PAGES ════════════════════════════════════════════ */
+  .page { display:none; padding-top:50px; min-height:100vh; }
+  .page.active { display:block; }
+
+  /* ══ HOME ═════════════════════════════════════════════ */
+  #page-home {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background: var(--bg);
+  }
+  #page-home.active { display:flex; }
+
+  .home-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: fadeUp .9s cubic-bezier(.16,1,.3,1) both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity:0; transform:translateY(22px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+
+  .home-logo-wrap {
+    width: 715px; height: 715px;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+  }
+  .home-logo-wrap::after {
+    content: '';
+    position: absolute;
+    width: 715px; height: 715px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,255,0.055) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  .home-logo-wrap img {
+    max-width: 715px; max-height: 715px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 20px rgba(255,255,255,0.10));
+    transition: filter .35s;
+  }
+  .home-logo-wrap:hover img { filter: drop-shadow(0 0 36px rgba(255,255,255,0.26)); }
+  .home-logo-svg {
+    width: 260px; height: 260px;
+    filter: drop-shadow(0 0 20px rgba(255,255,255,0.10));
+    transition: filter .35s;
+  }
+  .home-logo-wrap:hover .home-logo-svg { filter: drop-shadow(0 0 36px rgba(255,255,255,0.26)); }
+
+  /* ══ GAMES ════════════════════════════════════════════ */
+  #page-games { background: var(--bg); }
+
+  .games-header {
+    padding: 24px 28px 18px;
+    border-bottom: 1px solid var(--border);
+  }
+  .games-controls { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+
+  .games-search {
+    flex:1; min-width:200px;
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-radius: 5px;
+    padding: 9px 14px;
+    color: var(--text);
+    font-family: 'SiteFont', monospace;
+    font-size: 13px;
+    outline: none;
+    transition: border-color .2s, box-shadow .2s;
+  }
+  .games-search::placeholder { color: var(--text3); }
+  .games-search:focus { border-color: #3a3a3a; box-shadow: 0 0 12px var(--glow-md); }
+
+  .games-sort {
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-radius: 5px;
+    padding: 9px 32px 9px 12px;
+    color: var(--text2);
+    font-family: 'SiteFont', monospace;
+    font-size: 11px;
+    outline: none; cursor: pointer; appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23555' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    transition: border-color .2s;
+  }
+  .games-sort:focus { border-color: #3a3a3a; }
+  .games-sort option { background: #0c0c0c; }
+
+  .games-count {
+    font-family: 'SiteFont', monospace;
+    font-size: 10px; color: var(--text3);
+    letter-spacing: 1.5px; white-space: nowrap;
+  }
+
+  .games-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+    padding: 22px 28px;
+  }
+
+  .game-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px; overflow: hidden; cursor: pointer;
+    transition: border-color .18s, box-shadow .18s, transform .18s;
+    position: relative;
+  }
+  .game-card:hover {
+    border-color: #2e2e2e;
+    transform: translateY(-2px);
+    box-shadow: 0 0 22px rgba(255,255,255,0.05), 0 8px 28px rgba(0,0,0,0.7);
+  }
+  .game-thumb {
+    width:100%; aspect-ratio:6/9;
+    object-fit:cover; display:block;
+    background: var(--bg3);
+  }
+  .game-thumb-placeholder {
+    width:100%; aspect-ratio:6/9;
+    background: var(--bg3);
+    display:flex; align-items:center; justify-content:center;
+    color: var(--text3);
+    font-family: 'SiteFont', monospace;
+    font-size: 10px; letter-spacing: 2px;
+  }
+  .game-info { padding: 9px 11px 11px; }
+  .game-title {
+    font-size: 13px; color: var(--text);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .game-meta {
+    font-family: 'SiteFont', monospace;
+    font-size: 10px; color: var(--text3); margin-top: 3px; letter-spacing: .5px;
+  }
+  .fav-btn {
+    position: absolute; top: 7px; left: 7px;
+    background: rgba(0,0,0,0.72);
+    border: 1px solid var(--border2);
+    border-radius: 50%; width: 26px; height: 26px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; color: var(--text3); font-size: 12px;
+    transition: color .15s, border-color .15s, box-shadow .15s;
+    z-index: 2; backdrop-filter: blur(4px);
+  }
+  .fav-btn:hover { color: #ccc; border-color: #444; box-shadow: 0 0 10px var(--glow-hi); }
+  .fav-btn.active { color: #ff4444; border-color: #5a1a1a; }
+  .no-games {
+    grid-column: 1/-1; text-align: center; padding: 80px 20px;
+    color: var(--text3);
+    font-family: 'SiteFont', monospace;
+    font-size: 12px; letter-spacing: 2px; line-height: 2.2;
+  }
+
+  /* ══ GAME VIEWER ══════════════════════════════════════ */
+  #page-viewer { background:#000; display:none; flex-direction:column; }
+  #page-viewer.active { display:flex; }
+  .viewer-bar {
+    height: 42px; background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center;
+    padding: 0 14px; gap: 8px; flex-shrink: 0;
+  }
+  .viewer-back {
+    background: none; border: 1px solid var(--border2);
+    color: var(--text2); width: 28px; height: 28px;
+    border-radius: 4px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; flex-shrink: 0;
+    transition: color .15s, border-color .15s, box-shadow .15s;
+  }
+  .viewer-back:hover { color: var(--accent); border-color: #444; box-shadow: 0 0 10px var(--glow-hi); }
+  .viewer-title {
+    font-family: 'SiteFont', monospace;
+    font-size: 11px; letter-spacing: 2.5px; color: var(--text2);
+    flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    text-transform: uppercase;
+  }
+  .viewer-btn {
+    background: none; border: 1px solid var(--border2);
+    color: var(--text2); padding: 5px 12px; border-radius: 4px; cursor: pointer;
+    font-family: 'SiteFont', monospace; font-size: 10px;
+    letter-spacing: 1.5px; text-transform: uppercase;
+    display: flex; align-items: center; gap: 5px; flex-shrink: 0;
+    transition: color .15s, border-color .15s, box-shadow .15s;
+  }
+  .viewer-btn:hover { color: var(--accent); border-color: #444; box-shadow: 0 0 12px var(--glow-hi); }
+  .viewer-frame-wrap { flex: 1; overflow: hidden; }
+  #game-iframe { width:100%; height:100%; border:none; display:block; background:#000; }
+
+  /* ══ PROXY — bare browser ═════════════════════════════ */
+  #page-proxy {
+    display: none;
+    flex-direction: column;
+    padding-top: 50px;
+    height: 100vh;
+  }
+  #page-proxy.active { display: flex; }
+
+  .browser-bar {
+    height: 44px;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .browser-nav-btn {
+    background: none;
+    border: 1px solid var(--border2);
+    color: var(--text2);
+    width: 28px; height: 28px;
+    border-radius: 4px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; flex-shrink: 0;
+    transition: color .15s, border-color .15s;
+  }
+  .browser-nav-btn:hover { color: var(--accent); border-color: #444; }
+  .browser-url {
+    flex: 1;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 5px;
+    padding: 6px 12px;
+    color: var(--text);
+    font-family: 'SiteFont', monospace;
+    font-size: 12px;
+    outline: none;
+    transition: border-color .2s, box-shadow .2s;
+  }
+  .browser-url:focus { border-color: #3a3a3a; box-shadow: 0 0 10px var(--glow-md); }
+  .browser-go {
+    background: none;
+    border: 1px solid var(--border2);
+    color: var(--text2);
+    padding: 6px 14px;
+    border-radius: 4px; cursor: pointer;
+    font-family: 'SiteFont', monospace;
+    font-size: 10px; letter-spacing: 1.5px;
+    flex-shrink: 0;
+    transition: color .15s, border-color .15s;
+  }
+  .browser-go:hover { color: var(--accent); border-color: #444; }
+  .browser-frame-wrap {
+    flex: 1;
+    background: var(--bg);
+    overflow: hidden;
+  }
+  #proxy-iframe {
+    width: 100%; height: 100%;
+    border: none; display: block;
+    background: #fff;
+  }
+  .browser-empty {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text3);
+    font-family: 'SiteFont', monospace;
+    font-size: 11px; letter-spacing: 2px;
+  }
+
+  /* ══ CENTERED PAGES ═══════════════════════════════════ */
+  .centered-page {
+    display: flex;
+    justify-content: center;
+    padding-top: 80px;
+    padding-bottom: 80px;
+    min-height: 100vh;
+  }
+  .centered-inner {
+    width: 100%;
+    max-width: 560px;
+    padding: 0 28px;
+  }
+
+  .page-tag {
+    font-family: 'SiteFont', monospace;
+    font-size: 10px; letter-spacing: 3px; color: var(--text3);
+    text-transform: uppercase; margin-bottom: 14px; display: block;
+  }
+  .page-heading {
+    font-family: 'SiteFont', monospace;
+    font-size: 42px; letter-spacing: 6px;
+    color: var(--accent); margin-bottom: 16px;
+    text-transform: uppercase;
+  }
+  .page-body {
+    color: var(--text2); font-size: 13px; line-height: 1.8; margin-bottom: 14px;
+    font-family: 'SiteFont', monospace;
+  }
+  .simple-divider { border:none; border-top:1px solid var(--border); margin: 28px 0; }
+
+  /* ══ LINKS ════════════════════════════════════════════ */
+  .links-list { display:flex; flex-direction:column; gap:8px; margin-top:20px; }
+  .link-item {
+    display:flex; align-items:center; gap:12px;
+    padding: 13px 16px;
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 6px; text-decoration: none; color: var(--text);
+    font-size: 13px; font-family: 'SiteFont', monospace;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .link-item:hover { border-color: #2e2e2e; box-shadow: 0 0 14px var(--glow-md); }
+  .link-dot { width:5px; height:5px; border-radius:50%; background:var(--text3); flex-shrink:0; }
+
+  .links-generate-wrap {
+    display: flex;
+    justify-content: center;
+    margin-top: 32px;
+  }
+  .generate-btn {
+    padding: 10px 32px;
+    background: transparent;
+    border: 1px solid var(--border2);
+    color: var(--text2);
+    font-family: 'SiteFont', monospace;
+    font-size: 10px; letter-spacing: 2.5px;
+    text-transform: uppercase;
+    cursor: pointer; border-radius: 5px;
+    transition: border-color .15s, box-shadow .15s, color .15s;
+  }
+  .generate-btn:hover { border-color: #444; color: var(--accent); box-shadow: 0 0 16px var(--glow-hi); }
+
+  /* ══ REQUEST FORM ═════════════════════════════════════ */
+  .request-form { display:flex; flex-direction:column; gap:12px; margin-top:20px; }
+  .form-field { display:flex; flex-direction:column; gap:5px; }
+  .form-label {
+    font-family: 'SiteFont', monospace;
+    font-size: 10px; letter-spacing: 2px; color: var(--text3); text-transform: uppercase;
+  }
+  .form-input, .form-textarea {
+    background: var(--bg2); border: 1px solid var(--border2);
+    border-radius: 5px; padding: 9px 12px;
+    color: var(--text); font-family: 'SiteFont', monospace; font-size: 13px;
+    outline: none; transition: border-color .2s, box-shadow .2s; resize: vertical;
+  }
+  .form-input:focus, .form-textarea:focus { border-color: #3a3a3a; box-shadow: 0 0 10px var(--glow-md); }
+  .form-input::placeholder, .form-textarea::placeholder { color: var(--text3); }
+  .form-submit {
+    padding: 10px 26px; background: transparent;
+    border: 1px solid var(--border2); color: var(--text);
+    font-family: 'SiteFont', monospace; font-size: 11px;
+    letter-spacing: 2px; text-transform: uppercase; cursor: pointer;
+    border-radius: 5px; align-self: flex-start; margin-top: 4px;
+    transition: border-color .15s, box-shadow .15s, color .15s;
+  }
+  .form-submit:hover { border-color: #444; color: var(--accent); box-shadow: 0 0 16px var(--glow-hi); }
+  .form-status {
+    font-family: 'SiteFont', monospace;
+    font-size: 11px; letter-spacing: 1.5px;
+    color: var(--text3); margin-top: 8px;
+    min-height: 18px;
+  }
+  .form-status.ok { color: #4caf50; }
+  .form-status.err { color: #f44336; }
+
+  /* ══ ABOUT CODE BLOCK ═════════════════════════════════ */
+  .code-block {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 6px; padding: 16px 20px; margin-top: 14px;
+    font-family: 'SiteFont', monospace; font-size: 11px;
+    color: var(--text2); line-height: 2.3;
+  }
+  .inline-code {
+    font-family: 'SiteFont', monospace; font-size: 11px;
+    background: var(--bg2); padding: 2px 6px;
+    border-radius: 3px; color: #888;
+  }
+
+  /* ══ GENERATOR MODAL ══════════════════════════════════ */
+  .gen-modal-overlay {
+    display: none; position: fixed; inset: 0; z-index: 500;
+    background: rgba(0,0,0,0.88); backdrop-filter: blur(10px);
+    align-items: center; justify-content: center;
+  }
+  .gen-modal-overlay.show { display: flex; }
+
+  .gen-modal {
+    background: var(--bg2); border: 1px solid var(--border2);
+    border-radius: 10px; width: 92vw; max-width: 860px; max-height: 88vh;
+    display: flex; flex-direction: column; overflow: hidden;
+    box-shadow: 0 0 60px rgba(0,0,0,0.9);
+  }
+
+  .gen-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 20px; border-bottom: 1px solid var(--border); flex-shrink: 0;
+  }
+  .gen-title { font-family:'SiteFont',monospace; font-size:13px; letter-spacing:3px; color:var(--accent); text-transform:uppercase; }
+  .gen-close { background:none; border:1px solid var(--border2); color:var(--text2); width:28px; height:28px; border-radius:4px; cursor:pointer; font-size:14px; display:flex; align-items:center; justify-content:center; transition:color .15s,border-color .15s; }
+  .gen-close:hover { color:var(--accent); border-color:#444; }
+
+  .gen-body { display:flex; flex-direction:column; overflow:hidden; flex:1; }
+
+  .gen-controls {
+    display:flex; flex-wrap:wrap; gap:10px;
+    padding:16px 20px; border-bottom:1px solid var(--border); flex-shrink:0;
+  }
+  .gen-field { display:flex; flex-direction:column; gap:4px; flex:1; min-width:110px; }
+  .gen-field-label { font-family:'SiteFont',monospace; font-size:9px; letter-spacing:2px; color:var(--text3); text-transform:uppercase; }
+  .gen-select, .gen-text-input { background:var(--bg3); border:1px solid var(--border2); border-radius:4px; padding:7px 10px; color:var(--text); font-family:'SiteFont',monospace; font-size:11px; outline:none; cursor:pointer; appearance:none; transition:border-color .2s; }
+  .gen-select:focus, .gen-text-input:focus { border-color:#3a3a3a; }
+  .gen-select option { background:#0c0c0c; }
+  .gen-text-input { cursor:text; }
+
+  .gen-actions { display:flex; align-items:center; gap:8px; padding:12px 20px; border-bottom:1px solid var(--border); flex-shrink:0; }
+  .gen-run-btn { padding:8px 24px; background:transparent; border:1px solid var(--border2); color:var(--text); font-family:'SiteFont',monospace; font-size:10px; letter-spacing:2px; text-transform:uppercase; cursor:pointer; border-radius:4px; transition:border-color .15s,box-shadow .15s,color .15s; }
+  .gen-run-btn:hover { border-color:#555; color:var(--accent); box-shadow:0 0 14px var(--glow-hi); }
+  .gen-clear-btn { padding:8px 16px; background:transparent; border:1px solid var(--border); color:var(--text3); font-family:'SiteFont',monospace; font-size:10px; letter-spacing:1.5px; text-transform:uppercase; cursor:pointer; border-radius:4px; transition:color .15s,border-color .15s; }
+  .gen-clear-btn:hover { color:var(--text2); border-color:var(--border2); }
+  .gen-count { margin-left:auto; font-family:'SiteFont',monospace; font-size:10px; color:var(--text3); letter-spacing:1px; }
+
+  .gen-results { flex:1; overflow-y:auto; padding:12px 20px; display:flex; flex-direction:column; gap:6px; }
+  .gen-no-results { text-align:center; padding:40px 20px; color:var(--text3); font-family:'SiteFont',monospace; font-size:11px; letter-spacing:2px; line-height:2; }
+
+  .gen-result-item { background:var(--bg3); border:1px solid var(--border); border-radius:5px; padding:10px 12px; display:flex; flex-direction:column; gap:4px; transition:border-color .15s; }
+  .gen-result-item:hover { border-color:var(--border2); }
+  .gen-result-top { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .gen-result-title { font-family:'SiteFont',monospace; font-size:10px; color:var(--text2); letter-spacing:.5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1; }
+  .gen-result-actions { display:flex; gap:5px; flex-shrink:0; }
+  .gen-small-btn { padding:3px 10px; background:transparent; border:1px solid var(--border2); color:var(--text3); font-family:'SiteFont',monospace; font-size:9px; letter-spacing:1px; cursor:pointer; border-radius:3px; transition:color .15s,border-color .15s; }
+  .gen-small-btn:hover { color:var(--accent); border-color:#444; }
+  .gen-result-link { font-family:'SiteFont',monospace; font-size:10px; color:var(--text3); word-break:break-all; line-height:1.5; }
+  .gen-file-tag { display:inline-block; font-family:'SiteFont',monospace; font-size:9px; padding:1px 6px; border-radius:3px; border:1px solid var(--border2); color:var(--text3); margin-left:4px; letter-spacing:.5px; }
+
+  /* ══ SCROLLBAR ════════════════════════════════════════ */
+  ::-webkit-scrollbar { width:5px; }
+  ::-webkit-scrollbar-track { background:var(--bg); }
+  ::-webkit-scrollbar-thumb { background:#1e1e1e; border-radius:3px; }
+  ::-webkit-scrollbar-thumb:hover { background:#2e2e2e; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-links">
+    <button class="nav-btn active" onclick="showPage('home')"    id="nav-home">HOME</button>
+    <button class="nav-btn"        onclick="showPage('games')"   id="nav-games">GAMES</button>
+    <button class="nav-btn"        onclick="showPage('proxy')"   id="nav-proxy">PROXY</button>
+    <button class="nav-btn"        onclick="showPage('links')"   id="nav-links">LINKS</button>
+    <button class="nav-btn"        onclick="showPage('request')" id="nav-request">REQUEST</button>
+    <button class="nav-btn"        onclick="showPage('about')"   id="nav-about">ABOUT</button>
+  </div>
+</nav>
+
+<!-- ═══ HOME ════════════════════════════════════════════════════ -->
+<div class="page active" id="page-home">
+  <div class="home-content">
+    <div class="home-logo-wrap">
+      <img src="logo.png" alt="Logo"
+           onerror="this.style.display='none';document.getElementById('logo-fallback').style.display='block'">
+      <svg id="logo-fallback" class="home-logo-svg" style="display:none"
+           viewBox="0 0 180 180" xmlns="http://www.w3.org/2000/svg">
+        <rect x="28" y="56" width="124" height="76" rx="26" fill="none" stroke="#ddd" stroke-width="4"/>
+        <rect x="44" y="76" width="8" height="28" rx="4" fill="#ddd"/>
+        <rect x="34" y="86" width="28" height="8" rx="4" fill="#ddd"/>
+        <circle cx="124" cy="80" r="6" fill="#303030"/>
+        <circle cx="142" cy="94" r="6" fill="#303030"/>
+        <circle cx="124" cy="108" r="6" fill="#303030"/>
+        <circle cx="106" cy="94" r="6" fill="#303030"/>
+        <rect x="70" y="50" width="14" height="12" rx="3" fill="none" stroke="#2a2a2a" stroke-width="2.5"/>
+        <rect x="96" y="50" width="14" height="12" rx="3" fill="none" stroke="#2a2a2a" stroke-width="2.5"/>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ GAMES ═══════════════════════════════════════════════════ -->
+<div class="page" id="page-games">
+  <div class="games-header">
+    <div class="games-controls">
+      <input class="games-search" type="text" id="games-search" oninput="filterGames()"
+             placeholder="search games...">
+      <select class="games-sort" id="games-sort" onchange="filterGames()">
+        <option value="newest">newest first</option>
+        <option value="oldest">oldest first</option>
+        <option value="az">a → z</option>
+        <option value="za">z → a</option>
+      </select>
+	  <select class="games-sort" id="games-genre" onchange="filterGames()">
+		<option value="all">all genres</option>
+	  </select>
+      <span class="games-count" id="games-count">0 games</span>
+    </div>
+  </div>
+  <div class="games-grid" id="games-grid">
+    <div class="no-games">// no games loaded //</div>
+  </div>
+</div>
+
+<!-- ═══ GAME VIEWER ══════════════════════════════════════════════ -->
+<div class="page" id="page-viewer">
+  <div class="viewer-bar">
+    <button class="viewer-back" onclick="closeViewer()" title="Back">←</button>
+    <span class="viewer-title" id="viewer-title">—</span>
+    <button class="viewer-btn" onclick="refreshGame()">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M1 4v6h6"/><path d="M23 20v-6h-6"/>
+        <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/>
+      </svg>
+      REFRESH
+    </button>
+    <button class="viewer-btn" onclick="fullscreenGame()">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+      </svg>
+      FULLSCREEN
+    </button>
+  </div>
+  <div class="viewer-frame-wrap">
+    <iframe id="game-iframe"
+            sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+            allowfullscreen></iframe>
+  </div>
+</div>
+
+<!-- ═══ PROXY — bare browser ════════════════════════════════════ -->
+<div class="page" id="page-proxy">
+  <div class="browser-bar">
+    <button class="browser-nav-btn" onclick="proxyBack()" title="Back">←</button>
+    <button class="browser-nav-btn" onclick="proxyForward()" title="Forward">→</button>
+    <button class="browser-nav-btn" onclick="proxyRefresh()" title="Refresh">↻</button>
+    <input class="browser-url" id="proxy-url" type="text" placeholder="https://example.com"
+           onkeydown="if(event.key==='Enter')loadProxy()">
+    <button class="browser-go" onclick="loadProxy()">GO</button>
+  </div>
+  <div class="browser-frame-wrap">
+    <div class="browser-empty" id="proxy-empty">enter a url above</div>
+    <iframe id="proxy-iframe" src="" style="display:none;"
+            sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation"></iframe>
+  </div>
+</div>
+
+<!-- ═══ LINKS ════════════════════════════════════════════════════ -->
+<div class="page" id="page-links">
+  <div class="centered-page">
+    <div class="centered-inner">
+      <h1 class="page-heading">LINKS</h1>
+      <p class="page-body">a curated collection of useful sites and resources.</p>
+      <hr class="simple-divider">
+      <div class="links-list" id="links-list">
+        <!-- Add <a class="link-item" href="..."> entries here -->
+        <a class="link-item" href="https://github.com" target="_blank">
+          <span class="link-dot"></span>
+          <span>github</span>
+        </a>
+        <a class="link-item" href="https://developer.mozilla.org" target="_blank">
+          <span class="link-dot"></span>
+          <span>mdn web docs</span>
+        </a>
+        <a class="link-item" href="https://stackoverflow.com" target="_blank">
+          <span class="link-dot"></span>
+          <span>stack overflow</span>
+        </a>
+      </div>
+      <div class="links-generate-wrap">
+        <button class="generate-btn" onclick="generateLinks()">GENERATE</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ REQUEST ══════════════════════════════════════════════════ -->
+<div class="page" id="page-request">
+  <div class="centered-page">
+    <div class="centered-inner">
+      <h1 class="page-heading">REQUEST</h1>
+      <p class="page-body">don't see a game you want? submit a request and it'll be added to the vault.</p>
+      <hr class="simple-divider">
+      <div class="request-form">
+        <div class="form-field">
+          <label class="form-label">game name</label>
+          <input class="form-input" id="req-name" type="text" placeholder="e.g. hollow knight">
+        </div>
+        <div class="form-field">
+          <label class="form-label">where to find it</label>
+          <input class="form-input" id="req-source" type="text" placeholder="url or source...">
+        </div>
+        <div class="form-field">
+          <label class="form-label">notes</label>
+          <textarea class="form-textarea" id="req-notes" rows="3" placeholder="any additional info..."></textarea>
+        </div>
+        <button class="form-submit" onclick="submitRequest()">submit request →</button>
+        <div class="form-status" id="req-status"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ABOUT ════════════════════════════════════════════════════ -->
+<div class="page" id="page-about">
+  <div class="centered-page">
+    <div class="centered-inner">
+      <h1 class="page-heading">ABOUT</h1>
+      <p class="page-body">adrenaline is an unblocked game website created so that I can play games in school.</p>
+      <hr class="simple-divider">
+      <p class="page-body">games are loaded from the <code class="inline-code">/games/</code> folder. each game lives in its own subdirectory:</p>
+      <div class="code-block">
+        games/<br>
+        &nbsp;&nbsp;└── my-game/<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── thumbnail.png<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── game.html<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── data.json
+      </div>
+      <hr class="simple-divider">
+      <p class="page-body" style="font-size:12px;color:var(--text3)">
+        data.json: <code class="inline-code">{ "title": "...", "genre": "...", "added": "2024-01-01" }</code>
+      </p>
+      <p class="page-body" style="font-size:12px;color:var(--text3);margin-top:10px">
+        run <code class="inline-code">node generate-manifest.js</code> to auto-build games/manifest.json.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── GENERATOR CONFIG ─────────────────────────────────────────────
+const DEFAULT_REPO = 'svgfrosted';
+const DEFAULT_GEN_TITLE = 'frosted link generator';
+
+// ── ATBASH ────────────────────────────────────────────────────────
+const ATBASH_MAP = {};
+'abcdefghijklmnopqrstuvwxyz'.split('').forEach((c, i) => {
+  const pair = 'zyxwvutsrqponmlkjihgfedcba'[i];
+  ATBASH_MAP[c] = pair;
+  ATBASH_MAP[c.toUpperCase()] = pair.toUpperCase();
+});
+
+function atbash(str) {
+  return str.split('').map(c => ATBASH_MAP[c] || c).join('');
+}
+
+// Cipher every visible text node on the page — no exclusions.
+// HTML source stays as plain readable English; cipher is applied at render time.
+function cipherTextNodes(root) {
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+  const nodes = [];
+  while (walker.nextNode()) nodes.push(walker.currentNode);
+  nodes.forEach(node => {
+    const parent = node.parentElement;
+    if (!parent) return;
+    const tag = parent.tagName;
+    if (tag === 'SCRIPT' || tag === 'STYLE') return; // never touch code
+    if (node.textContent.trim() === '') return;
+    node.textContent = atbash(node.textContent);
+  });
+
+  // Cipher placeholders
+  root.querySelectorAll('[placeholder]').forEach(el => {
+    el.placeholder = atbash(el.placeholder);
+  });
+
+  // Cipher select options
+  root.querySelectorAll('select option').forEach(opt => {
+    opt.textContent = atbash(opt.textContent);
+  });
+}
+
+function cipherInputOnType(el) {
+  const originalValue = el.value;
+  el.value = atbash(originalValue);
+}
+
+// Setup dynamic ciphering for user-typed text in inputs/textareas
+function setupDynamicCiphering() {
+  const inputs = document.querySelectorAll('input[type="text"], input[type="search"], textarea');
+  inputs.forEach(input => {
+    // Store the real (plain) value separately
+    let realValue = '';
+
+    if (input.value) {
+      realValue = input.value;
+      input.value = atbash(input.value);
+    }
+
+    input.addEventListener('input', function() {
+      const cursorPos = this.selectionStart;
+
+      // Decode what's currently displayed to get back to plain text,
+      // since atbash is its own inverse (a->z->a)
+      realValue = atbash(this.value);
+
+      // Re-encode the whole plain value for display
+      this.value = atbash(realValue);
+      this.setSelectionRange(cursorPos, cursorPos);
+    });
+
+    // When reading the value (e.g. for form submission or proxy),
+    // decode it back to plain first
+    input.dataset.getReal = 'true';
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  cipherTextNodes(document.body);
+  setupDynamicCiphering();
+});
+
+// ── DISCORD WEBHOOK ───────────────────────────────────────────────
+// Replace this with your actual webhook URL
+const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1511847940824498277/ujMyW8lu_K7WINdwZqfC-Cx2n8tOaId006u_7Cf73z3uCKFHSK9HNhuFwW3clZTErKmA';
+
+// ── ROUTING ──────────────────────────────────────────────────────
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  const page = document.getElementById('page-' + name);
+  const btn  = document.getElementById('nav-' + name);
+  if (page) page.classList.add('active');
+  if (btn)  btn.classList.add('active');
+  if (name === 'games') loadGames();
+}
+
+// ── GAMES ────────────────────────────────────────────────────────
+let allGames = [];
+let favorites = JSON.parse(localStorage.getItem('arcvault-favs') || '[]');
+let gamesLoaded = false;
+
+async function loadGames() {
+  if (gamesLoaded) { filterGames(); return; }
+  try {
+    const r = await fetch('games/manifest.json');
+    if (!r.ok) throw new Error('no manifest');
+    allGames = await r.json();
+    gamesLoaded = true;
+  } catch(e) {
+    allGames = DEMO_GAMES;
+  }
+  filterGames();
+}
+
+const DEMO_GAMES = [
+  { id:'demo-1', title:'Demo Game 1', genre:'Action', added:'2024-06-01' },
+  { id:'demo-2', title:'Demo Game 2', genre:'Puzzle', added:'2024-05-15' },
+  { id:'demo-3', title:'Demo Game 3', genre:'RPG',    added:'2024-04-10' },
+  { id:'demo-4', title:'Demo Game 4', genre:'Arcade', added:'2024-03-22' },
+  { id:'demo-5', title:'Demo Game 5', genre:'Sports', added:'2024-02-08' },
+  { id:'demo-6', title:'Demo Game 6', genre:'Action', added:'2024-01-30' },
+];
+
+function filterGames() {
+  const q     = atbash(document.getElementById('games-search').value).toLowerCase();
+  const sort  = document.getElementById('games-sort').value;
+  const genre = document.getElementById('games-genre').value;
+
+  let f = allGames.filter(g =>
+    (g.title.toLowerCase().includes(q) || (g.genre||'').toLowerCase().includes(q)) &&
+    (genre === 'all' || (g.genre||'').toLowerCase() === genre.toLowerCase())
+  );
+
+  if (sort==='newest') f.sort((a,b)=>(b.added||'').localeCompare(a.added||''));
+  if (sort==='oldest') f.sort((a,b)=>(a.added||'').localeCompare(b.added||''));
+  if (sort==='az')     f.sort((a,b)=>a.title.localeCompare(b.title));
+  if (sort==='za')     f.sort((a,b)=>b.title.localeCompare(a.title));
+
+  // Favorites always float to top, preserving current sort among themselves
+  f.sort((a,b) => {
+    const af = favorites.includes(a.id) ? 0 : 1;
+    const bf = favorites.includes(b.id) ? 0 : 1;
+    return af - bf;
+  });
+
+  renderGames(f);
+}
+
+function populateGenres() {
+  const sel = document.getElementById('games-genre');
+  const genres = [...new Set(allGames.map(g => g.genre).filter(Boolean))].sort();
+  // Keep "all genres" option, add the rest
+  sel.innerHTML = `<option value="all">${atbash('all genres')}</option>` +
+    genres.map(g => `<option value="${g}">${atbash(g)}</option>`).join('');
+}
+
+function renderGames(games) {
+  const grid = document.getElementById('games-grid');
+  document.getElementById('games-count').textContent = atbash(`${games.length} game${games.length!==1?'s':''}`);
+  if (!games.length) { grid.innerHTML = `<div class="no-games">${atbash('// no results found //')}</div>`; return; }
+  grid.innerHTML = games.map(g => {
+    const isFav = favorites.includes(g.id);
+    const isDemo = g.id.startsWith('demo-');
+    const thumb  = isDemo ? null : `games/${g.id}/thumbnail.png`;
+    const imgEl  = thumb
+      ? `<img class="game-thumb" src="${thumb}" alt="${esc(g.title)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="game-thumb-placeholder" style="display:none">${atbash('NO IMAGE')}</div>`
+      : `<div class="game-thumb-placeholder">${atbash('NO IMAGE')}</div>`;
+    return `<div class="game-card${isFav ? ' fav-pinned' : ''}" onclick="openGame('${g.id}','${esc(g.title)}')">
+      ${imgEl}
+      <button class="fav-btn${isFav?' active':''}" onclick="toggleFav(event,'${g.id}')" title="Favourite">♥</button>
+      <div class="game-info">
+        <div class="game-title">${atbash(esc(g.title))}</div>
+        <div class="game-meta">${atbash((g.genre||'—')+' · '+(g.added||''))}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function esc(s) {
+  return String(s).replace(/[&<>"']/g,
+    c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function toggleFav(e, id) {
+  e.stopPropagation();
+  favorites = favorites.includes(id)
+    ? favorites.filter(f=>f!==id)
+    : [...favorites, id];
+  localStorage.setItem('arcvault-favs', JSON.stringify(favorites));
+  filterGames();
+}
+
+// ── VIEWER ───────────────────────────────────────────────────────
+function openGame(id, title) {
+  if (id.startsWith('demo-')) {
+    alert('Demo entry — add a real game folder at: games/' + id + '/');
+    return;
+  }
+  document.getElementById('viewer-title').textContent = title.toUpperCase();
+  document.getElementById('game-iframe').src = `games/${id}/game.html`;
+  showPage('viewer');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+}
+
+function closeViewer() {
+  document.getElementById('game-iframe').src = '';
+  showPage('games');
+}
+
+function refreshGame() {
+  const f = document.getElementById('game-iframe');
+  const s = f.src; f.src = '';
+  setTimeout(() => f.src = s, 80);
+}
+
+function fullscreenGame() {
+  const f = document.getElementById('game-iframe');
+  if (f.requestFullscreen) f.requestFullscreen();
+  else if (f.webkitRequestFullscreen) f.webkitRequestFullscreen();
+}
+
+// ── PROXY ────────────────────────────────────────────────────────
+const CORS_PROXY = 'https://api.allorigins.win/raw?url=';
+
+function resolveProxyInput(raw) {
+  const input = raw.trim();
+  if (!input) return null;
+
+  // Treat as URL if it starts with http OR matches word.tld with no spaces
+  const looksLikeUrl = /^https?:\/\//i.test(input) ||
+    (/^[^\s]+\.[a-z]{2,}(\/.*)?$/i.test(input) && !input.includes(' '));
+
+  if (looksLikeUrl) {
+    const url = /^https?:\/\//i.test(input) ? input : 'https://' + input;
+    return CORS_PROXY + encodeURIComponent(url);
+  }
+
+  // Otherwise: search DuckDuckGo through the proxy
+  const ddg = 'https://duckduckgo.com/?q=' + encodeURIComponent(input) + '&ia=web';
+  return CORS_PROXY + encodeURIComponent(ddg);
+}
+
+function loadProxy() {
+  const raw = atbash(document.getElementById('proxy-url').value); // decode first
+  const resolved = resolveProxyInput(raw);
+  if (!resolved) return;
+  document.getElementById('proxy-empty').style.display = 'none';
+  const iframe = document.getElementById('proxy-iframe');
+  iframe.style.display = 'block';
+  iframe.src = resolved;
+}
+
+function proxyBack()    { document.getElementById('proxy-iframe').contentWindow?.history.back(); }
+function proxyForward() { document.getElementById('proxy-iframe').contentWindow?.history.forward(); }
+function proxyRefresh() {
+  const f = document.getElementById('proxy-iframe');
+  if (f.src) { const s = f.src; f.src=''; setTimeout(()=>f.src=s,50); }
+}
+
+// ── GENERATOR DATA ────────────────────────────────────────────────
+const GEN_ALL_FILES = ['alphacore6840.svg','alphamesh4839.svg','alphaprism3609.svg','alpharay6511.svg','alpharay6647.svg','alphastorm3449.svg','blazebeacon2457.svg','blazecore66.svg','blazeedge3063.svg','blazelight8661.svg','blazenova732.svg','blazespiral8982.svg','blazevortex5246.svg','chatgpt-logo.svg','chromedark7366.svg','chromeflux98.svg','chromemesh1551.svg','cosmicglow4990.svg','cosmicglow5572.svg','cosmicgrid6280.svg','cosmicsurge30.svg','crystalburst6910.svg','crystallight6506.svg','crystalrealm9256.svg','crystalshadow8876.svg','crystalsync1368.svg','crystalvoid5176.svg','crystalwave5802.svg','cyberdrift1810.svg','cybergrid8761.svg','cybernode1286.svg','cyberray2667.svg','cybersync9144.svg','cybervoid6705.svg','deltahex4684.svg','deltalight8260.svg','deltanova4934.svg','deltanova7274.svg','deltarealm5444.svg','deltarealm6357.svg','deltashadow7041.svg','deltaspiral5700.svg','deltasync8727.svg','divinebeacon5271.svg','divinedust3739.svg','divinehex774.svg','divineprism7397.svg','divinesurge2724.svg','divinevoid9289.svg','driftbeacon7649.svg','driftdark6707.svg','driftdust6913.svg','driftprism8680.svg','driftpulse846.svg','driftwave9865.svg','echoburst134.svg','echoburst8558.svg','echocore3053.svg','echodust9620.svg','echopulse5200.svg','echospiral390.svg','echovortex3853.svg','fluxbeacon2938.svg','frostcore1637.svg','frostdrift3111.svg','frostglow6261.svg','frostlink7159.svg','frostnova8053.svg','froststorm3425.svg','frozendark844.svg','frozenglow6923.svg','frozenlink2018.svg','frozenstream2442.svg','frozensync1891.svg','frozensync5380.svg','frozensync6180.svg','infernodust1330.svg','infernoflow1733.svg','infernogrid1445.svg','infernonode6905.svg','lunarray4260.svg','lunarsurge9482.svg','mysticcore1450.svg','mysticcore8789.svg','mysticcore8877.svg','mysticdrift9928.svg','mysticlink7742.svg','mysticrealm9234.svg','mysticspiral2068.svg','neondrift3198.svg','neonmesh6933.svg','neonnova4644.svg','neonnova7079.svg','neonprism7755.svg','neonprism9765.svg','neonrealm3135.svg','neonspiral873.svg','nexusburst8770.svg','nexusedge3546.svg','nexusflux288.svg','nexusstorm2843.svg','nexussync9361.svg','nexusvortex3139.svg','omegadust6282.svg','omegaedge2192.svg','omegalink9420.svg','omeganova9730.svg','omegapulse6614.svg','omegaray8923.svg','omegaspiral4650.svg','omegastream5616.svg','omegasync3344.svg','pixeldark4536.svg','pixelflux5249.svg','pixelglow8188.svg','pixelgrid7913.svg','pixellight1105.svg','pixelpulse1149.svg','pixelvortex6672.svg','quantumbeacon9185.svg','quantumdark8816.svg','quantumedge8627.svg','quantummesh5532.svg','quantumsurge6472.svg','solarcore5640.svg','solaredge8932.svg','solarnode6290.svg','solarnova1088.svg','solarnova7794.svg','sonicburst89.svg','sonicdust3516.svg','soniclink8824.svg','sonicnova5152.svg','sonicspiral5301.svg','sonicsurge2706.svg','sonicvoid7001.svg','sparkbeacon1600.svg','sparknova683.svg','sparkprism7634.svg','sparkwave229.svg','stormbeacon2203.svg','stormburst8964.svg','stormdark1157.svg','stormdrift9059.svg','stormflow9024.svg','stormglow8396.svg','stormgrid2341.svg','stormlight2417.svg','stormpulse9110.svg','stormsurge5381.svg','stormsurge5701.svg','surgecore9185.svg','surgeflux8610.svg','surgegrid3278.svg','surgehex5160.svg','surgelink993.svg','surgemesh2032.svg','surgenode137.svg','surgenode4587.svg','surgenode5447.svg','surgeray2343.svg','surgeshadow1287.svg','surgeshadow1901.svg','surgesync9254.svg','surgevoid9806.svg','voidbeacon4793.svg','voidburst7785.svg','voidgrid336.svg','voidlight5277.svg','voidprism419.svg','voidprism529.svg','voidvoid6812.svg','vortexburst7129.svg','vortexdark1745.svg','vortexdrift9898.svg','vortexedge5109.svg','vortexflow9294.svg','vortexglow2222.svg','vortexlink6745.svg','vortexnova7482.svg','vortexspiral8981.svg','vortexvortex2937.svg','wavebeacon6240.svg','wavedrift7969.svg','waveflow8887.svg','waveflux7704.svg','wavegrid7167.svg','wavelight2416.svg','wavelink3495.svg','wavemesh8839.svg','waveprism4253.svg','waveprism4309.svg','waveprism8271.svg','waveray8627.svg','waveshadow9872.svg','wavewave2441.svg','zendark1999.svg','zengrid7695.svg'];
+const GEN_ALL_USERS    = ['searchfrosted','mrdavidss-vgg','archived-sites','mrdavidsz','Alsetle','mrdavidzs'];
+const GEN_ALL_BRANCHES = ['main','A1','A2','A3','A4','A5'];
+const GEN_ALL_MIRRORS  = ['cdn','quantil','fastly','gcore','testingcf'];
+const GEN_ALL_CDNS     = ['jsdelivr','statically','githack'];
+const GEN_TESTINGCF_USERS = ['mrdavidss-vgg','archived-sites','mrdavidsz','Alsetle','mrdavidzs'];
+
+// Which filters each mirror passes (✅ from the original source)
+const GEN_MIRROR_BYPASS = {
+  cdn:        ['FortiGuard','Lightspeed','Palo Alto','Blocksi','Linewize','Cisco Umbrella','Securly','GoGuardian','LanSchool','ContentKeeper','AristotleK12','Senso Cloud','Deledao','iBoss','Sophos','Barracuda','Qustodio','DNSFilter','ZScaler'],
+  quantil:    ['FortiGuard','Lightspeed','Blocksi','Linewize','Cisco Umbrella','Securly','LanSchool','ContentKeeper','AristotleK12','Senso Cloud','Deledao','iBoss','Sophos','Barracuda','Qustodio','DNSFilter'],
+  fastly:     ['FortiGuard','Lightspeed','Blocksi','Linewize','Cisco Umbrella','Securly','LanSchool','ContentKeeper','AristotleK12','Senso Cloud','Deledao','iBoss','Sophos','Barracuda','Qustodio','DNSFilter'],
+  gcore:      ['FortiGuard','Lightspeed','Blocksi','Linewize','Cisco Umbrella','Securly','LanSchool','ContentKeeper','AristotleK12','Senso Cloud','Deledao','iBoss','Sophos','Barracuda','Qustodio','DNSFilter'],
+  testingcf:  ['FortiGuard','Lightspeed','Blocksi','Linewize','Cisco Umbrella','Securly','LanSchool','ContentKeeper','AristotleK12','Senso Cloud','Deledao','iBoss','Sophos','Barracuda','Qustodio','DNSFilter'],
+  statically: ['FortiGuard','Lightspeed','Blocksi','Linewize','Cisco Umbrella','Securly','LanSchool','ContentKeeper','Senso Cloud','Deledao','iBoss','Sophos','Barracuda','Qustodio','DNSFilter'],
+  githack:    ['FortiGuard','Blocksi','Cisco Umbrella','LanSchool','ContentKeeper','Senso Cloud','iBoss','Sophos','Barracuda','Qustodio','DNSFilter'],
+};
+
+function genBypasses(mirrorKey, filterName) {
+  if (filterName === 'all') return true;
+  const list = GEN_MIRROR_BYPASS[mirrorKey] || [];
+  return list.some(f => filterName.includes(f) || f.includes(filterName));
+}
+
+function genUpdateMirrorVisibility() {
+  const cdn = document.getElementById('gen-cdn').value;
+  document.getElementById('gen-mirror-field').style.display =
+    (cdn === 'all' || cdn === 'jsdelivr') ? 'flex' : 'none';
+}
+
+function openGenerator() {
+  document.getElementById('gen-modal-overlay').classList.add('show');
+  genUpdateMirrorVisibility();
+}
+
+function closeGenerator() {
+  document.getElementById('gen-modal-overlay').classList.remove('show');
+}
+
+// Close on backdrop click
+document.getElementById('gen-modal-overlay').addEventListener('click', function(e) {
+  if (e.target === this) closeGenerator();
+});
+
+function clearGenerator() {
+  document.getElementById('gen-results').innerHTML =
+    '<div class="gen-no-results">// configure options above and hit generate //</div>';
+  document.getElementById('gen-count').textContent = atbash('0 links');
+}
+
+async function runGenerator() {
+  const resultsEl = document.getElementById('gen-results');
+  const countEl   = document.getElementById('gen-count');
+  resultsEl.innerHTML = '<div class="gen-no-results">// generating... //</div>';
+  countEl.textContent = atbash('...');
+
+  const selCDN    = document.getElementById('gen-cdn').value;
+  const selMirror = document.getElementById('gen-mirror').value;
+  const selUser   = document.getElementById('gen-user').value;
+  const selBranch = document.getElementById('gen-branch').value;
+  const selFilter = document.getElementById('gen-filter').value;
+  const repo      = DEFAULT_REPO;
+
+  const users    = selUser   === 'all' ? GEN_ALL_USERS    : [selUser];
+  const branches = selBranch === 'all' ? GEN_ALL_BRANCHES : [selBranch];
+  const mirrors  = selMirror === 'all' ? GEN_ALL_MIRRORS  : [selMirror];
+  const cdns     = selCDN    === 'all' ? GEN_ALL_CDNS     : [selCDN];
+  const files    = GEN_ALL_FILES;
+
+  const items = [];
+
+  // Primary jsdelivr CDN (mrdavidzs / main)
+  if ((selCDN==='all'||selCDN==='jsdelivr') &&
+      (selUser==='all'||selUser==='mrdavidzs') &&
+      (selMirror==='all'||selMirror==='cdn') &&
+      genBypasses('cdn', selFilter)) {
+    files.forEach(f => items.push({
+      label: `jsDelivr (cdn) — mrdavidzs @ main`,
+      file: f,
+      url: `https://cdn.jsdelivr.net/gh/mrdavidzs/${repo}@main/${f}`
+    }));
+  }
+
+  // jsdelivr JSON manifests (cdn + quantil)
+  if (cdns.includes('jsdelivr')) {
+    const sources = [];
+    if (mirrors.includes('cdn'))     sources.push({ file:'cdnjsdelivr.json',     key:'cdn' });
+    if (mirrors.includes('quantil')) sources.push({ file:'quantiljsdelivr.json', key:'quantil' });
+    for (const src of sources) {
+      try {
+        const r = await fetch(src.file);
+        if (r.ok) {
+          const data = await r.json();
+          data.forEach(link => {
+            const u = (link.match(/\/gh\/([^/]+)/) || [])[1] || 'unknown';
+            const b = (link.match(/@([^/]+)/)      || [])[1] || 'main';
+            if (selUser !== 'all' && u !== selUser) return;
+            if (u === 'searchfrosted' && b === 'main') return;
+            if (['Science-Math-2248','applebeescheese16-glitch'].includes(u)) return;
+            if (!genBypasses(src.key, selFilter)) return;
+            items.push({ label:`jsDelivr (${src.key}) — ${u} @ ${b}`, file:'', url: link.replace('@1.0.5','') });
+          });
+        }
+      } catch(e) { /* network errors — skip */ }
+    }
+  }
+
+  // Per-user / branch / CDN
+  users.forEach(u => {
+    branches.forEach(b => {
+      if (u === 'searchfrosted' && b === 'main') return;
+      const filesToProcess = (u !== 'mrdavidzs' && b !== 'main') ? ['chudding.svg'] : files;
+      filesToProcess.forEach(file => {
+        cdns.forEach(c => {
+          if (c === 'jsdelivr') {
+            mirrors.forEach(m => {
+              if (m === 'testingcf' && !GEN_TESTINGCF_USERS.includes(u)) return;
+              if (!genBypasses(m, selFilter)) return;
+              if (m === 'fastly' && u === 'searchfrosted' && b === 'main') return;
+              items.push({ label:`jsDelivr (${m}) — ${u} @ ${b}`, file, url:`https://${m}.jsdelivr.net/gh/${u}/${repo}@${b}/${file}` });
+            });
+          } else if (c === 'statically' && genBypasses('statically', selFilter)) {
+            items.push({ label:`statically.io — ${u} @ ${b}`, file, url:`https://cdn.statically.io/gh/${u}/${repo}/${b}/${file}` });
+          } else if (c === 'githack' && genBypasses('githack', selFilter)) {
+            items.push({ label:`githack — ${u} @ ${b}`, file, url:`https://raw.githack.com/${u}/${repo}/${b}/${file}` });
+          }
+        });
+      });
+    });
+  });
+
+  countEl.textContent = atbash(`${items.length} link${items.length !== 1 ? 's' : ''}`);
+
+  if (!items.length) {
+    resultsEl.innerHTML = '<div class="gen-no-results">// no results for current filters //</div>';
+    return;
+  }
+
+  resultsEl.innerHTML = '';
+  items.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'gen-result-item';
+    div.innerHTML = `
+      <div class="gen-result-top">
+        <span class="gen-result-title">
+          ${item.label}${item.file ? `<span class="gen-file-tag">${item.file}</span>` : ''}
+        </span>
+        <div class="gen-result-actions">
+          <button class="gen-small-btn" onclick="genCopy('${item.url}')">copy</button>
+          <button class="gen-small-btn" onclick="window.open('${item.url}','_blank')">open</button>
+        </div>
+      </div>
+      <div class="gen-result-link">${item.url}</div>`;
+    resultsEl.appendChild(div);
+  });
+}
+
+function genCopy(text) {
+  navigator.clipboard.writeText(text).catch(() => {});
+}
+
+// ── LINKS GENERATE ───────────────────────────────────────────────
+function generateLinks() { openGenerator(); }
+
+// ── REQUEST → DISCORD ────────────────────────────────────────────
+async function submitRequest() {
+const name   = atbash(document.getElementById('req-name').value.trim());
+const source = atbash(document.getElementById('req-source').value.trim());
+const notes  = atbash(document.getElementById('req-notes').value.trim());
+  const status = document.getElementById('req-status');
+
+  if (!name) {
+    status.className = 'form-status err';
+    status.textContent = atbash('please enter a game name.');
+    return;
+  }
+
+  if (DISCORD_WEBHOOK_URL === 'YOUR_WEBHOOK_URL_HERE') {
+    status.className = 'form-status err';
+    status.textContent = atbash('webhook url not configured.');
+    return;
+  }
+
+  status.className = 'form-status';
+  status.textContent = atbash('sending...');
+
+  try {
+    const res = await fetch(DISCORD_WEBHOOK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        embeds: [{
+          title: '🎮 Game Request',
+          color: 0x2b2b2b,
+          fields: [
+            { name: 'Game', value: name || '—', inline: true },
+            { name: 'Source', value: source || '—', inline: true },
+            { name: 'Notes', value: notes || '—' }
+          ],
+          timestamp: new Date().toISOString()
+        }]
+      })
+    });
+
+    if (res.ok || res.status === 204) {
+      status.className = 'form-status ok';
+      status.textContent = atbash('request sent!');
+      document.getElementById('req-name').value = '';
+      document.getElementById('req-source').value = '';
+      document.getElementById('req-notes').value = '';
+    } else {
+      throw new Error(res.status);
+    }
+  } catch(e) {
+    status.className = 'form-status err';
+    status.textContent = atbash('failed to send. check webhook url.');
+  }
+}
+</script>
+<div class="gen-modal-overlay" id="gen-modal-overlay">
+  <div class="gen-modal">
+    <div class="gen-header">
+      <span class="gen-title">// link generator</span>
+      <button class="gen-close" onclick="closeGenerator()">✕</button>
+    </div>
+    <div class="gen-body">
+      <div class="gen-controls">
+        <div class="gen-field">
+          <span class="gen-field-label">cdn</span>
+          <select class="gen-select" id="gen-cdn" onchange="genUpdateMirrorVisibility()">
+            <option value="all">all cdns</option>
+            <option value="jsdelivr">jsdelivr</option>
+            <option value="statically">statically</option>
+            <option value="githack">githack</option>
+          </select>
+        </div>
+        <div class="gen-field" id="gen-mirror-field">
+          <span class="gen-field-label">mirror</span>
+          <select class="gen-select" id="gen-mirror">
+            <option value="all">all mirrors</option>
+            <option value="cdn">cdn</option>
+            <option value="quantil">quantil</option>
+            <option value="fastly">fastly</option>
+            <option value="gcore">gcore</option>
+            <option value="testingcf">testingcf</option>
+          </select>
+        </div>
+        <div class="gen-field">
+          <span class="gen-field-label">user</span>
+          <select class="gen-select" id="gen-user">
+            <option value="all">all users</option>
+            <option value="searchfrosted">searchfrosted</option>
+            <option value="mrdavidss-vgg">mrdavidss-vgg</option>
+            <option value="archived-sites">archived-sites</option>
+            <option value="mrdavidsz">mrdavidsz</option>
+            <option value="Alsetle">Alsetle</option>
+            <option value="mrdavidzs">mrdavidzs</option>
+          </select>
+        </div>
+        <div class="gen-field">
+          <span class="gen-field-label">branch</span>
+          <select class="gen-select" id="gen-branch">
+            <option value="all">all branches</option>
+            <option value="main">main</option>
+            <option value="A1">A1</option>
+            <option value="A2">A2</option>
+            <option value="A3">A3</option>
+            <option value="A4">A4</option>
+            <option value="A5">A5</option>
+          </select>
+        </div>
+        <div class="gen-field">
+          <span class="gen-field-label">filter check</span>
+          <select class="gen-select" id="gen-filter">
+            <option value="all">show all</option>
+            <option value="FortiGuard">FortiGuard</option>
+            <option value="Lightspeed">Lightspeed</option>
+            <option value="Blocksi">Blocksi</option>
+            <option value="Linewize">Linewize</option>
+            <option value="Cisco Umbrella">Cisco Umbrella</option>
+            <option value="Securly">Securly</option>
+            <option value="GoGuardian">GoGuardian</option>
+            <option value="LanSchool">LanSchool</option>
+            <option value="ContentKeeper">ContentKeeper</option>
+            <option value="iBoss">iBoss</option>
+            <option value="Sophos">Sophos</option>
+            <option value="Barracuda">Barracuda</option>
+            <option value="Qustodio">Qustodio</option>
+            <option value="DNSFilter">DNSFilter</option>
+          </select>
+        </div>
+        <div class="gen-field">
+          <span class="gen-field-label">repo</span>
+          <input class="gen-text-input" id="gen-repo" type="text" value="svgfrosted" placeholder="repo name">
+        </div>
+      </div>
+      <div class="gen-actions">
+        <button class="gen-run-btn" onclick="runGenerator()">GENERATE →</button>
+        <button class="gen-clear-btn" onclick="clearGenerator()">CLEAR</button>
+        <span class="gen-count" id="gen-count">0 links</span>
+      </div>
+      <div class="gen-results" id="gen-results">
+        <div class="gen-no-results">// configure options above and hit generate //</div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
