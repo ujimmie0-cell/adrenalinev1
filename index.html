@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ADRENALINE V1</title>
+<title>ARCVAULT</title>
 <style>
   @font-face {
     font-family: 'SiteFont';
@@ -177,7 +177,7 @@
 
   .games-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     gap: 12px;
     padding: 22px 28px;
   }
@@ -195,12 +195,12 @@
     box-shadow: 0 0 22px rgba(255,255,255,0.05), 0 8px 28px rgba(0,0,0,0.7);
   }
   .game-thumb {
-    width:100%; aspect-ratio:6/9;
+    width:100%; aspect-ratio:16/10;
     object-fit:cover; display:block;
     background: var(--bg3);
   }
   .game-thumb-placeholder {
-    width:100%; aspect-ratio:6/9;
+    width:100%; aspect-ratio:16/10;
     background: var(--bg3);
     display:flex; align-items:center; justify-content:center;
     color: var(--text3);
@@ -563,9 +563,6 @@
         <option value="az">a → z</option>
         <option value="za">z → a</option>
       </select>
-	  <select class="games-sort" id="games-genre" onchange="filterGames()">
-		<option value="all">all genres</option>
-	  </select>
       <span class="games-count" id="games-count">0 games</span>
     </div>
   </div>
@@ -678,7 +675,7 @@
   <div class="centered-page">
     <div class="centered-inner">
       <h1 class="page-heading">ABOUT</h1>
-      <p class="page-body">adrenaline is an unblocked game website created so that I can play games in school.</p>
+      <p class="page-body">arcvault is a personal game archive. browse and play browser-based games directly from your local collection.</p>
       <hr class="simple-divider">
       <p class="page-body">games are loaded from the <code class="inline-code">/games/</code> folder. each game lives in its own subdirectory:</p>
       <div class="code-block">
@@ -751,29 +748,18 @@ function cipherInputOnType(el) {
 function setupDynamicCiphering() {
   const inputs = document.querySelectorAll('input[type="text"], input[type="search"], textarea');
   inputs.forEach(input => {
-    // Store the real (plain) value separately
-    let realValue = '';
-
+    // Initial cipher if there's already content
     if (input.value) {
-      realValue = input.value;
       input.value = atbash(input.value);
     }
-
+    
     input.addEventListener('input', function() {
+      // Store original (unciphered) value temporarily if needed, but for display we cipher
       const cursorPos = this.selectionStart;
-
-      // Decode what's currently displayed to get back to plain text,
-      // since atbash is its own inverse (a->z->a)
-      realValue = atbash(this.value);
-
-      // Re-encode the whole plain value for display
-      this.value = atbash(realValue);
+      this.value = atbash(this.value);
+      // Restore cursor position
       this.setSelectionRange(cursorPos, cursorPos);
     });
-
-    // When reading the value (e.g. for form submission or proxy),
-    // decode it back to plain first
-    input.dataset.getReal = 'true';
   });
 }
 
@@ -806,12 +792,18 @@ async function loadGames() {
   if (gamesLoaded) { filterGames(); return; }
   try {
     const r = await fetch('games/manifest.json');
-    if (!r.ok) throw new Error('no manifest');
-    allGames = await r.json();
+    console.log('[loadGames] fetch status:', r.status);
+    if (!r.ok) throw new Error('fetch failed: ' + r.status);
+    const data = await r.json();
+    console.log('[loadGames] loaded', data.length, 'games:', data);
+    allGames = data;
     gamesLoaded = true;
   } catch(e) {
+    console.warn('[loadGames] failed, using demo games:', e.message);
     allGames = DEMO_GAMES;
+    // Do NOT set gamesLoaded=true so it retries on next tab visit
   }
+  populateGenres();
   filterGames();
 }
 
@@ -825,8 +817,10 @@ const DEMO_GAMES = [
 ];
 
 function filterGames() {
+  // Decode the search input (it's displayed as atbash, we need the real value)
   const q     = atbash(document.getElementById('games-search').value).toLowerCase();
   const sort  = document.getElementById('games-sort').value;
+  // genre select uses raw value so no decode needed
   const genre = document.getElementById('games-genre').value;
 
   let f = allGames.filter(g =>
@@ -839,7 +833,7 @@ function filterGames() {
   if (sort==='az')     f.sort((a,b)=>a.title.localeCompare(b.title));
   if (sort==='za')     f.sort((a,b)=>b.title.localeCompare(a.title));
 
-  // Favorites always float to top, preserving current sort among themselves
+  // Favorites float to top, preserving relative sort order within each group
   f.sort((a,b) => {
     const af = favorites.includes(a.id) ? 0 : 1;
     const bf = favorites.includes(b.id) ? 0 : 1;
@@ -852,23 +846,30 @@ function filterGames() {
 function populateGenres() {
   const sel = document.getElementById('games-genre');
   const genres = [...new Set(allGames.map(g => g.genre).filter(Boolean))].sort();
-  // Keep "all genres" option, add the rest
+  // value = raw genre string so filterGames() comparison works
+  // inner text = ciphered for display
   sel.innerHTML = `<option value="all">${atbash('all genres')}</option>` +
     genres.map(g => `<option value="${g}">${atbash(g)}</option>`).join('');
 }
 
 function renderGames(games) {
   const grid = document.getElementById('games-grid');
-  document.getElementById('games-count').textContent = atbash(`${games.length} game${games.length!==1?'s':''}`);
-  if (!games.length) { grid.innerHTML = `<div class="no-games">${atbash('// no results found //')}</div>`; return; }
+  const count = document.getElementById('games-count');
+  count.textContent = atbash(`${games.length} game${games.length!==1?'s':''}`);
+  if (!games.length) {
+    grid.innerHTML = `<div class="no-games">${atbash('// no results found //')}</div>`;
+    return;
+  }
   grid.innerHTML = games.map(g => {
     const isFav = favorites.includes(g.id);
     const isDemo = g.id.startsWith('demo-');
     const thumb  = isDemo ? null : `games/${g.id}/thumbnail.png`;
     const imgEl  = thumb
-      ? `<img class="game-thumb" src="${thumb}" alt="${esc(g.title)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="game-thumb-placeholder" style="display:none">${atbash('NO IMAGE')}</div>`
+      ? `<img class="game-thumb" src="${thumb}" alt="${esc(g.title)}"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+         <div class="game-thumb-placeholder" style="display:none">${atbash('NO IMAGE')}</div>`
       : `<div class="game-thumb-placeholder">${atbash('NO IMAGE')}</div>`;
-    return `<div class="game-card${isFav ? ' fav-pinned' : ''}" onclick="openGame('${g.id}','${esc(g.title)}')">
+    return `<div class="game-card${isFav?' fav-pinned':''}" onclick="openGame('${g.id}','${esc(g.title)}')">
       ${imgEl}
       <button class="fav-btn${isFav?' active':''}" onclick="toggleFav(event,'${g.id}')" title="Favourite">♥</button>
       <div class="game-info">
@@ -878,7 +879,6 @@ function renderGames(games) {
     </div>`;
   }).join('');
 }
-
 function esc(s) {
   return String(s).replace(/[&<>"']/g,
     c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -944,7 +944,7 @@ function resolveProxyInput(raw) {
 }
 
 function loadProxy() {
-  const raw = atbash(document.getElementById('proxy-url').value); // decode first
+  const raw = document.getElementById('proxy-url').value;
   const resolved = resolveProxyInput(raw);
   if (!resolved) return;
   document.getElementById('proxy-empty').style.display = 'none';
@@ -1127,9 +1127,9 @@ function generateLinks() { openGenerator(); }
 
 // ── REQUEST → DISCORD ────────────────────────────────────────────
 async function submitRequest() {
-const name   = atbash(document.getElementById('req-name').value.trim());
-const source = atbash(document.getElementById('req-source').value.trim());
-const notes  = atbash(document.getElementById('req-notes').value.trim());
+  const name   = document.getElementById('req-name').value.trim();
+  const source = document.getElementById('req-source').value.trim();
+  const notes  = document.getElementById('req-notes').value.trim();
   const status = document.getElementById('req-status');
 
   if (!name) {
