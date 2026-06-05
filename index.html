@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ARCVAULT</title>
+<title>ADRENALINE V1</title>
 <style>
   @font-face {
     font-family: 'SiteFont';
@@ -619,22 +619,10 @@
   <div class="centered-page">
     <div class="centered-inner">
       <h1 class="page-heading">LINKS</h1>
-      <p class="page-body">a curated collection of useful sites and resources.</p>
+      <p class="page-body">A maintained collection of useful sites and resources.</p>
       <hr class="simple-divider">
       <div class="links-list" id="links-list">
-        <!-- Add <a class="link-item" href="..."> entries here -->
-        <a class="link-item" href="https://github.com" target="_blank">
-          <span class="link-dot"></span>
-          <span>github</span>
-        </a>
-        <a class="link-item" href="https://developer.mozilla.org" target="_blank">
-          <span class="link-dot"></span>
-          <span>mdn web docs</span>
-        </a>
-        <a class="link-item" href="https://stackoverflow.com" target="_blank">
-          <span class="link-dot"></span>
-          <span>stack overflow</span>
-        </a>
+    
       </div>
       <div class="links-generate-wrap">
         <button class="generate-btn" onclick="generateLinks()">GENERATE</button>
@@ -648,22 +636,22 @@
   <div class="centered-page">
     <div class="centered-inner">
       <h1 class="page-heading">REQUEST</h1>
-      <p class="page-body">don't see a game you want? submit a request and it'll be added to the vault.</p>
+      <p class="page-body">Don't see a game you want? submit a request and it might be added to the vault.</p>
       <hr class="simple-divider">
       <div class="request-form">
         <div class="form-field">
-          <label class="form-label">game name</label>
+          <label class="form-label">Game name</label>
           <input class="form-input" id="req-name" type="text" placeholder="e.g. hollow knight">
         </div>
         <div class="form-field">
-          <label class="form-label">where to find it</label>
+          <label class="form-label">Where to find it</label>
           <input class="form-input" id="req-source" type="text" placeholder="url or source...">
         </div>
         <div class="form-field">
-          <label class="form-label">notes</label>
+          <label class="form-label">Notes</label>
           <textarea class="form-textarea" id="req-notes" rows="3" placeholder="any additional info..."></textarea>
         </div>
-        <button class="form-submit" onclick="submitRequest()">submit request →</button>
+        <button class="form-submit" onclick="submitRequest()">Submit request</button>
         <div class="form-status" id="req-status"></div>
       </div>
     </div>
@@ -675,22 +663,21 @@
   <div class="centered-page">
     <div class="centered-inner">
       <h1 class="page-heading">ABOUT</h1>
-      <p class="page-body">arcvault is a personal game archive. browse and play browser-based games directly from your local collection.</p>
+      <p class="page-body">Adrenaline is a personal game website for unblocked games.</p>
+      
       <hr class="simple-divider">
-      <p class="page-body">games are loaded from the <code class="inline-code">/games/</code> folder. each game lives in its own subdirectory:</p>
-      <div class="code-block">
-        games/<br>
-        &nbsp;&nbsp;└── my-game/<br>
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── thumbnail.png<br>
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── game.html<br>
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── data.json
+      
+      <h2 class="page-heading" style="font-size:28px; margin: 32px 0 16px 0;">CHANGELOG</h2>
+      
+      <div class="links-list" id="changelog-list">
+        <!-- Populated dynamically by JavaScript -->
+        <div style="text-align:center; padding:40px 20px; color:var(--text3);">
+          Loading changelog...
+        </div>
       </div>
-      <hr class="simple-divider">
-      <p class="page-body" style="font-size:12px;color:var(--text3)">
-        data.json: <code class="inline-code">{ "title": "...", "genre": "...", "added": "2024-01-01" }</code>
-      </p>
-      <p class="page-body" style="font-size:12px;color:var(--text3);margin-top:10px">
-        run <code class="inline-code">node generate-manifest.js</code> to auto-build games/manifest.json.
+      
+      <p style="margin-top:24px; font-size:11px; color:var(--text3); text-align:center;">
+        Changelog loaded from external JSON • <span id="changelog-last-updated" style="opacity:0.6;"></span>
       </p>
     </div>
   </div>
@@ -767,6 +754,50 @@ document.addEventListener('DOMContentLoaded', () => {
   cipherTextNodes(document.body);
   setupDynamicCiphering();
 });
+
+// ── DYNAMIC CHANGELOG ─────────────────────────────────────────────
+async function loadChangelog() {
+  const container = document.getElementById('changelog-list');
+  const lastUpdatedEl = document.getElementById('changelog-last-updated');
+  
+  // Change this URL to your own JSON file
+  const CHANGELOG_URL = 'https://raw.githubusercontent.com/ujimmie0-cell/adrenalineinfo/refs/heads/main/changelog';
+  // Example: https://cdn.jsdelivr.net/gh/YOURUSERNAME/YOURREPO@main/changelog.json
+
+  try {
+    const res = await fetch(CHANGELOG_URL);
+    if (!res.ok) throw new Error('Failed to load');
+    
+    const changelog = await res.json();
+    
+    container.innerHTML = changelog.map(entry => `
+      <a class="link-item" href="#" onclick="return false;">
+        <span class="link-dot"></span>
+        <span>${entry.date} — ${entry.title}</span>
+      </a>
+    `).join('');
+    
+    if (changelog.length > 0 && changelog[0].date) {
+      lastUpdatedEl.textContent = `Last updated: ${changelog[0].date}`;
+    }
+    
+  } catch (e) {
+    container.innerHTML = `
+      <div style="padding:30px; text-align:center; color:#f44336; border:1px solid #3a3a3a; border-radius:6px;">
+        Failed to load changelog.<br>
+        <small style="opacity:0.7;">Check the URL or your internet connection.</small>
+      </div>`;
+  }
+}
+
+// Call it when About page is opened
+const originalShowPage = showPage;
+showPage = function(name) {
+  originalShowPage(name);
+  if (name === 'about') {
+    loadChangelog();
+  }
+};
 
 // ── DISCORD WEBHOOK ───────────────────────────────────────────────
 // Replace this with your actual webhook URL
