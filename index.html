@@ -761,7 +761,8 @@ async function loadChangelog() {
   const lastUpdatedEl = document.getElementById('changelog-last-updated');
   
   // Fixed URL with .json extension
-  const CHANGELOG_URL = 'https://raw.githubusercontent.com/ujimmie0-cell/adrenalineinfo/refs/heads/main/changelog.json';
+const CHANGELOG_URL = 'https://api.allorigins.win/raw?url=' + 
+  encodeURIComponent('https://raw.githubusercontent.com/ujimmie0-cell/adrenalineinfo/refs/heads/main/changelog.json');
 
   try {
     const res = await fetch(CHANGELOG_URL);
