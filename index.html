@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ADRENALINE V1</title>
+<title>ARCVAULT</title>
 <style>
   @font-face {
     font-family: 'SiteFont';
@@ -760,9 +760,8 @@ async function loadChangelog() {
   const container = document.getElementById('changelog-list');
   const lastUpdatedEl = document.getElementById('changelog-last-updated');
   
-  // Change this URL to your own JSON file
-  const CHANGELOG_URL = 'https://raw.githubusercontent.com/ujimmie0-cell/adrenalineinfo/refs/heads/main/changelog';
-  // Example: https://cdn.jsdelivr.net/gh/YOURUSERNAME/YOURREPO@main/changelog.json
+  // Fixed URL with .json extension
+  const CHANGELOG_URL = 'https://raw.githubusercontent.com/ujimmie0-cell/adrenalineinfo/refs/heads/main/changelog.json';
 
   try {
     const res = await fetch(CHANGELOG_URL);
@@ -782,6 +781,7 @@ async function loadChangelog() {
     }
     
   } catch (e) {
+    console.error(e);
     container.innerHTML = `
       <div style="padding:30px; text-align:center; color:#f44336; border:1px solid #3a3a3a; border-radius:6px;">
         Failed to load changelog.<br>
